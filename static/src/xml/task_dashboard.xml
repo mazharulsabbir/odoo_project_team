@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="project_team_rules.TaskDashboard" owl="1">
+        <div class="o_task_dashboard">
+            <div class="o_control_panel">
+                <div class="o_control_panel_main">
+                    <h1>Task Dashboard</h1>
+                </div>
+            </div>
+            <div class="o_content">
+                <div class="container-fluid">
+                    <div class="row mb-4 mt-4">
+                        <div class="col-12 d-flex gap-2 justify-content-center">
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <t t-if="state.period === 'all'">All Time</t>
+                                    <t t-elif="state.period === 'this_week'">This Week</t>
+                                    <t t-elif="state.period === 'prev_week'">Previous Week</t>
+                                    <t t-elif="state.period === 'this_month'">This Month</t>
+                                    <t t-elif="state.period === 'prev_month'">Previous Month</t>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.onPeriodClick('all')">All Time</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.onPeriodClick('this_week')">This Week</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.onPeriodClick('prev_week')">Previous Week</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.onPeriodClick('this_month')">This Month</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.onPeriodClick('prev_month')">Previous Month</a></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <t t-esc="state.selectedUserName"/>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.onUserFilterClick(false, 'All Users')">All Users</a></li>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <t t-foreach="state.stats.assignees" t-as="assignee" t-key="assignee.id">
+                                        <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.onUserFilterClick(assignee.id, assignee.name)">
+                                            <t t-esc="assignee.name"/>
+                                        </a></li>
+                                    </t>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title">Total Tasks</h5>
+                                    <h2 class="text-primary" t-on-click="() => this.openTasks()" style="cursor: pointer;">
+                                        <t t-esc="state.stats.total_tasks"/>
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title">Done</h5>
+                                    <h2 class="text-success">
+                                        <t t-esc="state.stats.done_tasks"/>
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title">In Progress</h5>
+                                    <h2 class="text-warning">
+                                        <t t-esc="state.stats.in_progress_tasks"/>
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title">To Do</h5>
+                                    <h2 class="text-info">
+                                        <t t-esc="state.stats.todo_tasks"/>
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Tasks by Assignee</h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Assignee</th>
+                                                <th>Total Tasks</th>
+                                                <th>Done Tasks</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="state.stats.assignees" t-as="assignee" t-key="assignee.id">
+                                                <tr>
+                                                    <td><t t-esc="assignee.name"/></td>
+                                                    <td><t t-esc="assignee.task_count"/></td>
+                                                    <td><t t-esc="assignee.done_count"/></td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-sm btn-primary" t-on-click="() => this.viewUserTasks(assignee.id)">
+                                                            View Tasks
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

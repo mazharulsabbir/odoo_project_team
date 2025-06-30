@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Project Teams Menu under Configuration -->
+    <menuitem id="menu_project_teams"
+              name="Project Teams"
+              parent="project.menu_project_config"
+              action="action_project_team"
+              sequence="50"/>
+    
+    <!-- Task Dashboard Menu under Report menu -->
+    <menuitem id="menu_project_task_dashboard"
+              name="Task Dashboard"
+              parent="project.menu_project_report"
+              action="action_project_task_dashboard_custom"
+              sequence="5"/>
+</odoo>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Server Action for Dashboard -->
+    <record id="action_show_task_dashboard" model="ir.actions.server">
+        <field name="name">Show Task Dashboard</field>
+        <field name="model_id" ref="model_project_task_dashboard"/>
+        <field name="binding_model_id" ref="model_project_task_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">
+period = env.context.get('search_default_period', 'all')
+assignee_id = env.context.get('search_default_assignee_id', False)
+stats = env['project.task.dashboard'].get_task_statistics(period, assignee_id)
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Task Statistics',
+        'message': f"Total: {stats['total_tasks']} | Done: {stats['done_tasks']} | In Progress: {stats['in_progress_tasks']} | To Do: {stats['todo_tasks']}",
+        'type': 'info',
+    }
+}
+        </field>
+    </record>
+
+    <!-- Dashboard View -->
+    <record id="view_project_task_dashboard" model="ir.ui.view">
+        <field name="name">project.task.dashboard</field>
+        <field name="model">project.task.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Task Dashboard" create="false" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Task Dashboard</h1>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="oe_button_box" name="button_box">
+                                <button name="%(action_show_task_dashboard)d"
+                                        type="action"
+                                        class="oe_stat_button"
+                                        context="{'search_default_period': 'all'}">
+                                    <field name="task_count" widget="statinfo" string="Total Tasks"/>
+                                </button>
+                                <button name="%(action_show_task_dashboard)d"
+                                        type="action"
+                                        class="oe_stat_button"
+                                        context="{'search_default_period': 'this_week'}">
+                                    <div class="o_stat_info">
+                                        <span class="o_stat_text">This Week</span>
+                                    </div>
+                                </button>
+                                <button name="%(action_show_task_dashboard)d"
+                                        type="action"
+                                        class="oe_stat_button"
+                                        context="{'search_default_period': 'prev_week'}">
+                                    <div class="o_stat_info">
+                                        <span class="o_stat_text">Previous Week</span>
+                                    </div>
+                                </button>
+                                <button name="%(action_show_task_dashboard)d"
+                                        type="action"
+                                        class="oe_stat_button"
+                                        context="{'search_default_period': 'this_month'}">
+                                    <div class="o_stat_info">
+                                        <span class="o_stat_text">This Month</span>
+                                    </div>
+                                </button>
+                                <button name="%(action_show_task_dashboard)d"
+                                        type="action"
+                                        class="oe_stat_button"
+                                        context="{'search_default_period': 'prev_month'}">
+                                    <div class="o_stat_info">
+                                        <span class="o_stat_text">Previous Month</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="done_count" readonly="1"/>
+                            <field name="in_progress_count" readonly="1"/>
+                            <field name="todo_count" readonly="1"/>
+                        </group>
+                    </group>
+<!--                    <notebook>-->
+<!--                        <page string="Assignees">-->
+<!--                            <field name="assignee_ids" readonly="1">-->
+<!--                                <tree create="false" delete="false">-->
+<!--                                    <field name="name"/>-->
+<!--                                    <field name="task_count"/>-->
+<!--                                    <field name="done_count"/>-->
+<!--                                    <button name="filter_by_assignee"-->
+<!--                                            type="object"-->
+<!--                                            string="Filter Tasks"-->
+<!--                                            class="btn-link"/>-->
+<!--                                </tree>-->
+<!--                            </field>-->
+<!--                        </page>-->
+<!--                    </notebook>-->
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Custom Dashboard Action -->
+    <record id="action_project_task_dashboard_custom" model="ir.actions.client">
+        <field name="name">Task Dashboard</field>
+        <field name="tag">project_task_dashboard</field>
+        <field name="target">main</field>
+    </record>
+
+</odoo>

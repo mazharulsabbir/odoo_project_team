@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Project Form View to add Team field -->
+    <record id="view_project_project_form_inherit" model="ir.ui.view">
+        <field name="name">project.project.form.inherit.team</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="team_id" options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Project Tree View to add Team field -->
+    <record id="view_project_project_tree_inherit" model="ir.ui.view">
+        <field name="name">project.project.tree.inherit.team</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="team_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Project Search View to add Team filter -->
+    <record id="view_project_project_search_inherit" model="ir.ui.view">
+        <field name="name">project.project.search.inherit.team</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_project_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="team_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='Manager']" position="after">
+                <filter string="My Teams" name="my_teams" domain="[('team_id.member_ids', 'in', uid)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
