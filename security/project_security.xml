@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
+    <data>
 
         <!-- Rule: Users can only see projects assigned to their team when privacy is team -->
         <record id="project_team_rule_project" model="ir.rule">
@@ -16,22 +16,13 @@
             <field name="groups" eval="[(4, ref('project.group_project_user'))]"/>
         </record>
 
-        <!-- Update existing rule to handle team privacy -->
-        <function model="ir.rule" name="write">
-            <value eval="[ref('project.project_public_members_rule')]"/>
-            <value eval="{
-                'domain_force': &quot;[
-                    ('privacy_visibility', '=', 'followers'),
-                    ('message_partner_ids', 'in', [user.partner_id.id]),
-                ]&quot;
-            }"/>
-        </function>
-
         <!-- Rule: Users can only see tasks from projects they have access to -->
         <record id="project_team_rule_task" model="ir.rule">
             <field name="name">Task: Team members and assigned users only</field>
             <field name="model_id" ref="project.model_project_task"/>
             <field name="domain_force">[
+                '|',
+                ('project_id.privacy_visibility', '!=', 'team'),
                 '|', '|',
                 ('project_id.team_id.member_ids', 'in', user.id),
                 ('user_ids', 'in', user.id),
@@ -54,6 +45,98 @@
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('project.group_project_manager'))]"/>
         </record>
+
+        <!-- Update existing rule to handle team privacy -->
+        <function model="ir.rule" name="write">
+            <value eval="[ref('project.project_public_members_rule')]"/>
+            <value eval="{
+                'domain_force': &quot;[
+                    ('privacy_visibility', '=', 'followers'),
+                    ('message_partner_ids', 'in', [user.partner_id.id]),
+                ]&quot;
+            }"/>
+        </function>
+
+        <!-- Update report rule to handle team privacy -->
+        <function model="ir.rule" name="write">
+            <value eval="[ref('project.report_project_task_user_rule')]"/>
+            <value eval="{
+            'domain_force': &quot;[
+                '|', '|',
+                    ('project_id.privacy_visibility', 'not in', ['followers', 'team']),
+                    '&amp;',
+                        ('project_id.privacy_visibility', '=', 'followers'),
+                        ('project_id.message_partner_ids', 'in', [user.partner_id.id]),
+                    '&amp;',
+                        ('project_id.privacy_visibility', '=', 'team'),
+                        ('project_id.team_id.member_ids', 'in', user.id),
+                '|',
+                    ('task_id.message_partner_ids', 'in', [user.partner_id.id]),
+                    ('user_ids', 'in', user.id)
+            ]&quot;
+        }"/>
+        </function>
+
+        <!-- Update burndown chart rule to handle team privacy -->
+        <function model="ir.rule" name="write">
+            <value eval="[ref('project.burndown_chart_project_user_rule')]"/>
+            <value eval="{
+            'domain_force': &quot;[
+                '|', '|',
+                ('project_id.privacy_visibility', 'not in', ['followers', 'team']),
+                '&amp;',
+                    ('project_id.privacy_visibility', '=', 'followers'),
+                    ('project_id.message_partner_ids', 'in', [user.partner_id.id]),
+                '&amp;',
+                    ('project_id.privacy_visibility', '=', 'team'),
+                    ('project_id.team_id.member_ids', 'in', user.id),
+                ('user_ids', 'in', user.id)
+            ]&quot;
+        }"/>
+        </function>
+
+        <!-- Update task visibility rule to handle team privacy -->
+        <function model="ir.rule" name="write">
+            <value eval="[ref('project.task_visibility_rule')]"/>
+            <value eval="{
+            'domain_force': &quot;[
+                '|',
+                    '&amp;',
+                        ('project_id', '!=', False),
+                        '|', '|',
+                            ('project_id.privacy_visibility', 'not in', ['followers', 'team']),
+                            '&amp;',
+                                ('project_id.privacy_visibility', '=', 'followers'),
+                                ('project_id.message_partner_ids', 'in', [user.partner_id.id]),
+                            '&amp;',
+                                ('project_id.privacy_visibility', '=', 'team'),
+                                ('project_id.team_id.member_ids', 'in', user.id),
+                    '|',
+                        ('message_partner_ids', 'in', [user.partner_id.id]),
+                        ('user_ids', 'in', user.id)
+            ]&quot;
+        }"/>
+        </function>
+
+        <!-- Update private task rule to handle team privacy -->
+        <function model="ir.rule" name="write">
+            <value eval="[ref('project.ir_rule_private_task')]"/>
+            <value eval="{
+            'domain_force': &quot;[
+                '|', '|',
+                    ('project_id.privacy_visibility', 'not in', ['followers', 'team']),
+                    '&amp;',
+                        ('project_id.privacy_visibility', '=', 'team'),
+                        ('project_id.team_id.member_ids', 'in', user.id),
+                    '&amp;',
+                        ('project_id.privacy_visibility', '=', 'followers'),
+                        ('project_id.message_partner_ids', 'in', [user.partner_id.id]),
+                    '|', ('project_id', '!=', False),
+                      ('parent_id', '!=', False),
+                 ('user_ids', 'in', user.id),
+            ]&quot;
+        }"/>
+        </function>
 
     </data>
 </odoo>
