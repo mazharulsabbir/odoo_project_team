@@ -10,6 +10,7 @@
     <!-- Task Dashboard Menu under Report menu -->
     <menuitem id="menu_project_task_dashboard"
               name="Task Dashboard"
+              groups="project.group_project_manager"
               parent="project.menu_project_report"
               action="action_project_task_dashboard_custom"
               sequence="5"/>

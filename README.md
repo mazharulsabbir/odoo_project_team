@@ -4,30 +4,42 @@ A comprehensive Odoo 16 module for managing project teams and implementing team-
 
 ## Overview
 
-The Project Team Rules module enhances Odoo's project management capabilities by introducing team-based project visibility and a powerful task analytics dashboard. Projects are restricted to team members only, ensuring data security and proper access control.
+The Project Team Rules module enhances Odoo's project management capabilities by introducing a new privacy visibility option "Assigned Team Only" and a powerful task analytics dashboard. This module seamlessly integrates with Odoo's existing privacy model, adding team-based access control alongside the standard privacy options.
 
 ## Features
 
-### 1. Team Management
+### 1. Enhanced Privacy Visibility
+- Adds "Assigned Team Only" option to project privacy settings
+- Integrates with existing privacy options (Followers, All Internal Users, etc.)
+- Team-based access only applies when privacy is set to "Assigned Team Only"
+- Automatic fallback to default privacy if team mode is removed
+
+### 2. Team Management
 - Create and manage project teams with multiple members
 - Assign teams to projects for access control
-- Only team members can view and access their assigned projects
+- Teams are required only when privacy is set to "Assigned Team Only"
+- Filter teams to show only internal users (non-portal users)
 
-### 2. Team-Based Security
-- Projects are visible only to assigned team members
-- Tasks are visible to team members, assignees, and project managers
-- Automatic access control based on team membership
+### 3. Flexible Security Model
+- Projects with "Assigned Team Only" privacy are visible only to team members
+- Other privacy modes work as standard Odoo behavior
+- Tasks inherit project visibility rules
+- Project managers retain full access regardless of privacy settings
 
-### 3. Task Dashboard
+### 4. Advanced Task Dashboard (Project Managers Only)
 - Real-time task statistics with visual cards
-- Time-based filtering (All Time, This Week, Previous Week, This Month, Previous Month)
-- User-based filtering to view specific assignee's tasks
-- Interactive assignee table with quick task viewing
+- Dual filtering system:
+  - Time-based: All Time, This Week, Previous Week, This Month, Previous Month
+  - User-based: Filter by specific team members or view all
+- Interactive statistics showing Total, Done, In Progress, and To Do tasks
+- Assignee table with "View Tasks" action for detailed task lists
+- Centered filter controls for better UI
 
-### 4. Task Assignment Restrictions
-- Task assignees can only be selected from project team members
+### 5. Smart Task Assignment
+- When privacy is "Assigned Team Only", assignees are restricted to team members
 - Automatic validation when changing projects
-- Domain restrictions on user selection fields
+- Invalid assignees are removed when project team changes
+- Domain restrictions ensure data integrity
 
 ## Installation
 
@@ -71,10 +83,11 @@ The Project Team Rules module enhances Odoo's project management capabilities by
   - Archive inactive teams
 
 ### Task Dashboard
-**Location:** Project → Reporting → Task Dashboard
+**Location:** Project → Reporting → Task Dashboard  
+**Access:** Project Managers only
 
 - **Dashboard Features:**
-  - **Filter Controls:**
+  - **Filter Controls (Centered):**
     - Time Period Dropdown: All Time, This Week, Previous Week, This Month, Previous Month
     - User Filter Dropdown: All Users or specific team members
   
@@ -85,8 +98,9 @@ The Project Team Rules module enhances Odoo's project management capabilities by
     - To Do Tasks
   
   - **Assignee Table:**
-    - Shows all team members with task counts
-    - "View Tasks" button to see specific user's tasks
+    - Shows all active team members with their task counts
+    - "View Tasks" button opens filtered task list for that user
+    - Always displays all users, even with zero tasks
 
 ## Usage Guide
 
@@ -98,12 +112,15 @@ The Project Team Rules module enhances Odoo's project management capabilities by
 4. Add team members (only internal users)
 5. Save the team
 
-### Assigning Teams to Projects
+### Configuring Project Privacy and Teams
 
 1. Open any project in form view
-2. Find the "Project Team" field (below Project Manager)
-3. Select the appropriate team
-4. Save the project
+2. Set "Privacy Visibility" to "Assigned Team Only"
+3. The "Project Team" field becomes required
+4. Select the appropriate team from the dropdown
+5. Save the project
+
+**Note:** The team field is only required when privacy is set to "Assigned Team Only"
 
 ### Using the Task Dashboard
 
@@ -123,9 +140,13 @@ The Project Team Rules module enhances Odoo's project management capabilities by
 
 ### Access Rules
 
-1. **Projects:** Visible only to team members and project managers
+1. **Projects:** 
+   - When privacy is "Assigned Team Only": Visible only to team members
+   - Other privacy modes: Standard Odoo behavior applies
+   - Project managers always have full access
+
 2. **Tasks:** Visible to:
-   - Team members of the project
+   - Team members of the project (when project privacy is "Assigned Team Only")
    - Users assigned to the task
    - Task creators
    - Project managers (full access)
