@@ -166,18 +166,22 @@ Navigate to: **Project → Reporting → Task Dashboard**
 
 #### 2. Statistics Cards
 
-The dashboard displays four key metrics:
+The dashboard displays dynamic statistics based on your actual project stages:
 - **Total Tasks**: Click to view the complete task list
-- **Done Tasks**: Completed tasks (in folded stages)
-- **In Progress Tasks**: Active tasks with assignees
-- **To Do Tasks**: Unassigned tasks
+- **Stage-based Cards**: Automatically shows cards for each stage in your projects
+  - Cards are color-coded: Green for Done/Completed, Yellow for In Progress/Doing, Blue for others
+  - Adapts to your workflow - no fixed statuses
+  - Shows real-time count for each stage
 
 #### 3. Assignee Performance Table
 
 View detailed statistics per user:
-- User name
-- Total task count
-- Completed task count
+- **User name**: All active team members are listed
+- **Total Tasks**: Shows the total number of tasks assigned to each user
+- **Task Status**: Displays stage-wise breakdown as colored pills
+  - Example: "To Do: 5" (blue), "In Progress: 3" (yellow), "Done: 2" (green)
+  - Pills are color-coded to match the stage cards above
+  - Users with no tasks show "No tasks"
 - **"View Tasks"** button - Opens filtered task list for that user
 
 ### Using Dashboard Filters

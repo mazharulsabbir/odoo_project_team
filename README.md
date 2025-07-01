@@ -31,8 +31,12 @@ The Project Team Rules module enhances Odoo's project management capabilities by
 - Dual filtering system:
   - Time-based: All Time, This Week, Previous Week, This Month, Previous Month
   - User-based: Filter by specific team members or view all
-- Interactive statistics showing Total, Done, In Progress, and To Do tasks
-- Assignee table with "View Tasks" action for detailed task lists
+- Dynamic stage-based statistics instead of fixed statuses
+- Tasks are counted by stage name for accurate representation
+- Assignee table with:
+  - Total task count per user
+  - Stage-wise task breakdown as colored pills
+  - "View Tasks" action for detailed task lists
 - Centered filter controls for better UI
 
 ### 5. Smart Task Assignment
@@ -93,12 +97,14 @@ The Project Team Rules module enhances Odoo's project management capabilities by
   
   - **Statistics Cards:**
     - Total Tasks (clickable to view task list)
-    - Done Tasks
-    - In Progress Tasks
-    - To Do Tasks
+    - Dynamic stage cards showing actual stage names from your projects
+    - Automatic color coding: green for Done/Completed stages, yellow for In Progress/Doing stages, blue for others
+    - Cards adapt to your workflow - no fixed statuses
   
   - **Assignee Table:**
-    - Shows all active team members with their task counts
+    - Shows all active team members
+    - Total task count per user
+    - Stage-wise breakdown as colored pills (e.g., "To Do: 5", "In Progress: 3", "Done: 2")
     - "View Tasks" button opens filtered task list for that user
     - Always displays all users, even with zero tasks
 
@@ -185,11 +191,13 @@ The module includes comprehensive unit tests covering all major functionality:
    - Privacy mode bypass testing
 
 4. **`test_task_dashboard.py`** - Dashboard Functionality Tests
-   - Statistics calculation accuracy
+   - Dynamic stage-based statistics calculation
    - Time-based filtering (week/month)
    - User-specific filtering
    - Security compliance for non-managers
    - User visibility in dropdowns
+   - Stage breakdown per assignee
+   - Total task count validation
 
 ### Running Tests
 
