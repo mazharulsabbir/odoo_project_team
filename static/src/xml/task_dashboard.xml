@@ -45,7 +45,7 @@
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-3 mt-3">
                             <div class="card text-center">
                                 <div class="card-body">
                                     <h5 class="card-title">Total Tasks</h5>
@@ -56,7 +56,7 @@
                             </div>
                         </div>
                         <t t-foreach="state.stats.stages" t-as="stage" t-key="stage.name">
-                            <div class="col-md-3">
+                            <div class="col-md-3 mt-3">
                                 <div class="card text-center">
                                     <div class="card-body">
                                         <h5 class="card-title" t-esc="stage.name"/>

@@ -87,16 +87,21 @@ class ProjectTaskDashboard(models.Model):
         
         # Calculate statistics dynamically based on stage names
         total_tasks = sum(group['stage_id_count'] for group in stage_groups)
-        stages = []
+        stages = {}
         
         for group in stage_groups:
             if group['stage_id']:
                 stage_name = group['stage_id'][1]  # stage_id returns (id, name)
-                stages.append({
-                    'name': stage_name,
-                    'count': group['stage_id_count']
-                })
-        
+                if stage_name not in stages:
+                    stages[stage_name] = {
+                        'name': stage_name,
+                        'count': 0
+                    }
+                stages[stage_name]['count'] += group['stage_id_count']
+
+        # Convert stages dict to list
+        stages = list(stages.values())
+
         stats = {
             'total_tasks': total_tasks,
             'stages': stages,
@@ -151,10 +156,20 @@ class ProjectTaskDashboard(models.Model):
         # Build assignee data with stage counts
         for user_id, stage_counts in user_stage_counts.items():
             if user_id in assignee_data:
-                assignee_data[user_id]['stages'] = [
-                    {'name': stage_name, 'count': count}
-                    for stage_name, count in stage_counts.items()
-                ]
+                # assignee_data[user_id]['stages'] = [
+                #     {'name': stage_name, 'count': count}
+                #     for stage_name, count in stage_counts.items()
+                # ]
+                assignee_stages = {}
+                for stage_name, count in stage_counts.items():
+                    if stage_name not in assignee_stages:
+                        assignee_stages[stage_name] = {
+                            'name': stage_name,
+                            'count': 0
+                        }
+                    assignee_stages[stage_name]['count'] += count
+
+                assignee_data[user_id]['stages'] = list(assignee_stages.values())
                 assignee_data[user_id]['total_tasks'] = sum(stage_counts.values())
         
         stats['assignees'] = sorted(list(assignee_data.values()), key=lambda x: x['name'])
