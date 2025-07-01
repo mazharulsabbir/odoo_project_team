@@ -129,12 +129,25 @@ class TestTaskDashboard(common.TransactionCase):
         
         # Verify totals
         self.assertEqual(stats['total_tasks'], 5)
-        self.assertEqual(stats['done_tasks'], 2)  # 2 tasks in done stage
-        self.assertEqual(stats['todo_tasks'], 0)  # 0 unassigned task
-        self.assertEqual(stats['in_progress_tasks'], 3)  # 3 assigned non-done tasks
+        
+        # Verify stages
+        self.assertIn('stages', stats)
+        stage_names = [s['name'] for s in stats['stages']]
+        self.assertIn('To Do', stage_names)
+        self.assertIn('In Progress', stage_names)
+        self.assertIn('Done', stage_names)
+        
+        # Verify stage counts
+        for stage in stats['stages']:
+            if stage['name'] == 'Done':
+                self.assertEqual(stage['count'], 2)
+            elif stage['name'] == 'To Do':
+                self.assertEqual(stage['count'], 2)
+            elif stage['name'] == 'In Progress':
+                self.assertEqual(stage['count'], 1)
         
         # Verify assignees
-        self.assertEqual(len(stats['assignees']), 5)  # Should show both users
+        self.assertEqual(len(stats['assignees']), 4)  # Should show both users
     
     def test_02_dashboard_statistics_this_week(self):
         """Test dashboard statistics for this week filter"""
@@ -145,7 +158,11 @@ class TestTaskDashboard(common.TransactionCase):
         
         # Should only count this week's task
         self.assertEqual(stats['total_tasks'], 4)
-        self.assertEqual(stats['in_progress_tasks'], 2)
+        
+        # Verify stages for this week
+        in_progress_stage = next((s for s in stats['stages'] if s['name'] == 'In Progress'), None)
+        self.assertIsNotNone(in_progress_stage)
+        self.assertEqual(in_progress_stage['count'], 1)
     
     def test_03_dashboard_statistics_user_filter(self):
         """Test dashboard statistics with user filter"""
@@ -158,7 +175,7 @@ class TestTaskDashboard(common.TransactionCase):
         self.assertEqual(stats['total_tasks'], 2)  # User1 has 2 tasks
         
         # Assignees should still show all users
-        self.assertEqual(len(stats['assignees']), 5)
+        self.assertEqual(len(stats['assignees']), 4)
     
     def test_04_dashboard_security_team_member(self):
         """Test dashboard respects team security for non-managers"""
@@ -229,5 +246,56 @@ class TestTaskDashboard(common.TransactionCase):
             None
         )
         self.assertIsNotNone(no_task_user_stat)
-        self.assertEqual(no_task_user_stat['task_count'], 0)
-        self.assertEqual(no_task_user_stat['done_count'], 0)
+        self.assertEqual(no_task_user_stat['total_tasks'], 0)
+        self.assertEqual(len(no_task_user_stat['stages']), 0)
+    
+    def test_06_assignee_stages_breakdown(self):
+        """Test that assignees show correct stage breakdowns"""
+        # Create tasks in different stages for user1
+        self.env['project.task'].create({
+            'name': 'User1 Todo Task 1',
+            'project_id': self.project.id,
+            'user_ids': [(6, 0, [self.user1.id])],
+            'stage_id': self.stage_todo.id
+        })
+        
+        self.env['project.task'].create({
+            'name': 'User1 Todo Task 2',
+            'project_id': self.project.id,
+            'user_ids': [(6, 0, [self.user1.id])],
+            'stage_id': self.stage_todo.id
+        })
+        
+        self.env['project.task'].create({
+            'name': 'User1 Progress Task',
+            'project_id': self.project.id,
+            'user_ids': [(6, 0, [self.user1.id])],
+            'stage_id': self.stage_progress.id
+        })
+        
+        self.env['project.task'].create({
+            'name': 'User1 Done Task',
+            'project_id': self.project.id,
+            'user_ids': [(6, 0, [self.user1.id])],
+            'stage_id': self.stage_done.id
+        })
+        
+        # Get statistics
+        dashboard = self.env['project.task.dashboard']
+        stats = dashboard.with_user(self.user_manager).get_task_statistics('all', False)
+        
+        # Find user1 in assignees
+        user1_stat = next(
+            (a for a in stats['assignees'] if a['id'] == self.user1.id),
+            None
+        )
+        
+        self.assertIsNotNone(user1_stat)
+        self.assertEqual(user1_stat['total_tasks'], 4)
+        self.assertEqual(len(user1_stat['stages']), 3)  # Should have 3 different stages
+        
+        # Verify stage counts
+        stage_dict = {s['name']: s['count'] for s in user1_stat['stages']}
+        self.assertEqual(stage_dict.get('To Do', 0), 2)
+        self.assertEqual(stage_dict.get('In Progress', 0), 1)
+        self.assertEqual(stage_dict.get('Done', 0), 1)
