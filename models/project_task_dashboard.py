@@ -78,14 +78,28 @@ class ProjectTaskDashboard(models.Model):
             ]).ids
             domain.append(('project_id', 'in', team_projects))
         
-        tasks = self.env['project.task'].search(domain)
+        # Group tasks by stage name
+        stage_groups = self.env['project.task'].read_group(
+            domain,
+            ['stage_id'],
+            ['stage_id']
+        )
         
-        # Calculate statistics
+        # Calculate statistics dynamically based on stage names
+        total_tasks = sum(group['stage_id_count'] for group in stage_groups)
+        stages = []
+        
+        for group in stage_groups:
+            if group['stage_id']:
+                stage_name = group['stage_id'][1]  # stage_id returns (id, name)
+                stages.append({
+                    'name': stage_name,
+                    'count': group['stage_id_count']
+                })
+        
         stats = {
-            'total_tasks': len(tasks),
-            'done_tasks': len(tasks.filtered(lambda t: t.stage_id.fold)),
-            'in_progress_tasks': len(tasks.filtered(lambda t: not t.stage_id.fold and t.user_ids)),
-            'todo_tasks': len(tasks.filtered(lambda t: not t.stage_id.fold and not t.user_ids)),
+            'total_tasks': total_tasks,
+            'stages': stages,
             'assignees': []
         }
         
@@ -108,17 +122,40 @@ class ProjectTaskDashboard(models.Model):
             assignee_data[u.id] = {
                 'id': u.id,
                 'name': u.name,
-                'task_count': 0,
-                'done_count': 0
+                'total_tasks': 0,
+                'stages': []
             }
         
-        # Count tasks for users who have assignments
-        for task in tasks:
-            for task_user in task.user_ids:
-                if task_user.id in assignee_data:
-                    assignee_data[task_user.id]['task_count'] += 1
-                    if task.stage_id.fold:
-                        assignee_data[task_user.id]['done_count'] += 1
+        # Count tasks for users by stage using read_group
+        user_stage_groups = self.env['project.task'].read_group(
+            domain + [('user_ids', '!=', False)],
+            ['user_ids', 'stage_id'],
+            ['user_ids', 'stage_id'],
+            lazy=False
+        )
+        
+        # Process the grouped data
+        user_stage_counts = {}
+        for group in user_stage_groups:
+            if group['user_ids'] and group['stage_id']:
+                stage_name = group['stage_id'][1]
+                count = group['__count']
+                
+                for user_id in group['user_ids']:
+                    if user_id not in user_stage_counts:
+                        user_stage_counts[user_id] = {}
+                    if stage_name not in user_stage_counts[user_id]:
+                        user_stage_counts[user_id][stage_name] = 0
+                    user_stage_counts[user_id][stage_name] += count
+        
+        # Build assignee data with stage counts
+        for user_id, stage_counts in user_stage_counts.items():
+            if user_id in assignee_data:
+                assignee_data[user_id]['stages'] = [
+                    {'name': stage_name, 'count': count}
+                    for stage_name, count in stage_counts.items()
+                ]
+                assignee_data[user_id]['total_tasks'] = sum(stage_counts.values())
         
         stats['assignees'] = sorted(list(assignee_data.values()), key=lambda x: x['name'])
         

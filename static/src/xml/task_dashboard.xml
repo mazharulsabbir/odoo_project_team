@@ -55,36 +55,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title">Done</h5>
-                                    <h2 class="text-success">
-                                        <t t-esc="state.stats.done_tasks"/>
-                                    </h2>
+                        <t t-foreach="state.stats.stages" t-as="stage" t-key="stage.name">
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <h5 class="card-title" t-esc="stage.name"/>
+                                        <h2 t-attf-class="text-{{stage.name.toLowerCase().includes('done') || stage.name.toLowerCase().includes('completed') ? 'success' : stage.name.toLowerCase().includes('progress') || stage.name.toLowerCase().includes('doing') ? 'warning' : 'info'}}">
+                                            <t t-esc="stage.count"/>
+                                        </h2>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title">In Progress</h5>
-                                    <h2 class="text-warning">
-                                        <t t-esc="state.stats.in_progress_tasks"/>
-                                    </h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h5 class="card-title">To Do</h5>
-                                    <h2 class="text-info">
-                                        <t t-esc="state.stats.todo_tasks"/>
-                                    </h2>
-                                </div>
-                            </div>
-                        </div>
+                        </t>
                     </div>
                     
                     <div class="row mt-4">
@@ -99,7 +81,7 @@
                                             <tr>
                                                 <th>Assignee</th>
                                                 <th>Total Tasks</th>
-                                                <th>Done Tasks</th>
+                                                <th>Task Status</th>
                                                 <th class="text-center">Action</th>
                                             </tr>
                                         </thead>
@@ -107,8 +89,23 @@
                                             <t t-foreach="state.stats.assignees" t-as="assignee" t-key="assignee.id">
                                                 <tr>
                                                     <td><t t-esc="assignee.name"/></td>
-                                                    <td><t t-esc="assignee.task_count"/></td>
-                                                    <td><t t-esc="assignee.done_count"/></td>
+                                                    <td>
+                                                        <span>
+                                                            <t t-esc="assignee.total_tasks"/>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <t t-if="assignee.stages.length">
+                                                            <t t-foreach="assignee.stages" t-as="stage" t-key="stage.name">
+                                                                <span t-attf-class="badge rounded-pill bg-{{stage.name.toLowerCase().includes('done') || stage.name.toLowerCase().includes('completed') ? 'success' : stage.name.toLowerCase().includes('progress') || stage.name.toLowerCase().includes('doing') ? 'warning' : 'info'}} me-2 text-white py-1 px-2">
+                                                                    <t t-esc="stage.name"/>: <t t-esc="stage.count"/>
+                                                                </span>
+                                                            </t>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="text-muted">No tasks</span>
+                                                        </t>
+                                                    </td>
                                                     <td class="text-center">
                                                         <button class="btn btn-sm btn-primary" t-on-click="() => this.viewUserTasks(assignee.id)">
                                                             View Tasks
