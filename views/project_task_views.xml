@@ -10,7 +10,7 @@
                 <field name="project_team_member_ids" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='user_ids']" position="attributes">
-                <attribute name="domain">[('id', 'in', project_team_member_ids)]</attribute>
+                <attribute name="domain">project_team_member_ids and [('id', 'in', project_team_member_ids)] or []</attribute>
                 <attribute name="context">{'default_project_id': project_id}</attribute>
             </xpath>
         </field>
